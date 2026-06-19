@@ -1,2 +1,22 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Python
+__pycache__/
+*.pyc
+
+# Env
+.env
+
+# Conda
+.conda/
+
+# Vector DB
+data/chroma/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
