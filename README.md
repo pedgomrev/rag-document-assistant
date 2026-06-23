@@ -2,19 +2,22 @@
 
 A Retrieval-Augmented Generation (RAG) application that enables users to upload PDF documents, index their contents into a vector database, and ask natural language questions grounded on the uploaded documents.
 
-The project uses local Large Language Models (LLMs) through Ollama, semantic search with ChromaDB, and a REST API built with FastAPI.
+The project uses local Large Language Models (LLMs) through Ollama, semantic search with ChromaDB, a REST API built with FastAPI, and a Streamlit web interface for document management and querying.
 
 ---
 
 # Features
 
-* Upload PDF documents through a REST API.
+* Upload PDF documents through a web interface or REST API.
 * Automatic document processing and chunking.
 * Embedding generation using local models.
 * Semantic search with ChromaDB.
 * Question answering based exclusively on indexed documents.
 * Source attribution showing the document and page used to generate each answer.
 * Document deletion and automatic reindexing.
+* REST API built with FastAPI.
+* Interactive web interface built with Streamlit.
+* Dockerized deployment with Docker Compose.
 * Fully local execution without external LLM APIs.
 
 ---
@@ -23,12 +26,15 @@ The project uses local Large Language Models (LLMs) through Ollama, semantic sea
 
 * Python 3.11
 * FastAPI
+* Streamlit
 * LangChain
 * ChromaDB
 * Ollama
 * Llama 3.2
 * mxbai-embed-large
 * Pydantic
+* Docker
+* Docker Compose
 
 ---
 
@@ -61,6 +67,36 @@ Answer + Sources
 
 ---
 
+# Application Architecture
+
+```text
+┌─────────────────┐
+│   Streamlit UI  │
+└────────┬────────┘
+         │ HTTP
+         ▼
+┌─────────────────┐
+│     FastAPI     │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   RAG Pipeline  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│    ChromaDB     │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│     Ollama      │
+└─────────────────┘
+```
+
+---
+
 # API Endpoints
 
 ## Upload a document
@@ -70,6 +106,8 @@ POST /upload
 ```
 
 Uploads a PDF document and automatically indexes it into the vector database.
+
+---
 
 ## Ask a question
 
@@ -85,6 +123,8 @@ Example request:
 }
 ```
 
+---
+
 ## List indexed documents
 
 ```http
@@ -92,6 +132,8 @@ GET /documents
 ```
 
 Returns all currently indexed PDF documents.
+
+---
 
 ## Delete a document
 
@@ -101,6 +143,8 @@ DELETE /documents/{filename}
 
 Deletes a document and rebuilds the vector database.
 
+---
+
 ## Reindex all documents
 
 ```http
@@ -108,6 +152,8 @@ POST /reindex
 ```
 
 Recreates the vector database from all PDFs stored in the repository.
+
+---
 
 ## Health check
 
@@ -128,7 +174,8 @@ rag-document-assistant/
 │   ├── api/
 │   ├── core/
 │   ├── schemas/
-│   └── services/
+│   ├── services/
+│   └── ui/
 │
 ├── data/
 │   ├── raw/
@@ -136,19 +183,26 @@ rag-document-assistant/
 │
 ├── tests/
 │
+├── Dockerfile.api
+├── Dockerfile.streamlit
+├── docker-compose.yml
+├── .dockerignore
+│
 ├── requirements.txt
 ├── environment.yml
-└── README.md
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-# Installation
+# Installation (Local)
 
 ## Clone the repository
 
 ```bash
 git clone https://github.com/pedgomrev/rag-document-assistant.git
+
 cd rag-document-assistant
 ```
 
@@ -156,6 +210,7 @@ cd rag-document-assistant
 
 ```bash
 conda env create -f environment.yml
+
 conda activate rag-assistant
 ```
 
@@ -169,31 +224,69 @@ https://ollama.com/download
 
 ```bash
 ollama pull llama3.2:3b
+
 ollama pull mxbai-embed-large
 ```
 
-## Run the API
+## Start FastAPI
 
 ```bash
 uvicorn app.api.main:app --reload
 ```
 
-Swagger documentation:
+## Start Streamlit
+
+```bash
+streamlit run app/ui/streamlit_app.py
+```
+
+---
+
+# Run with Docker
+
+## Prerequisites
+
+Make sure Ollama is installed and running locally.
+
+Required models:
+
+```bash
+ollama pull llama3.2:3b
+
+ollama pull mxbai-embed-large
+```
+
+## Build and start containers
+
+```bash
+docker compose up --build
+```
+
+## Access the application
+
+FastAPI documentation:
 
 ```text
-http://127.0.0.1:8000/docs
+http://localhost:8000/docs
+```
+
+Streamlit interface:
+
+```text
+http://localhost:8501
 ```
 
 ---
 
 # Future Improvements
 
-* Streamlit user interface.
-* Docker support.
-* Hybrid retrieval (BM25 + Vector Search).
-* Document metadata filtering.
-* Automated testing pipeline.
-* User authentication and document ownership.
+* Hybrid Retrieval (BM25 + Vector Search)
+* Metadata filtering
+* User authentication
+* Chat history
+* CI/CD pipeline
+* Automated testing
+* Cloud deployment
 
 ---
 
