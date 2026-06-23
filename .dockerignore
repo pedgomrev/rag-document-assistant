@@ -1,0 +1,17 @@
+**pycache**/
+*.pyc
+*.pyo
+*.pyd
+
+.git/
+.gitignore
+
+.vscode/
+
+.env
+
+data/chroma/
+
+.streamlit/
+
+tests/
